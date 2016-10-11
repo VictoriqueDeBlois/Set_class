@@ -1,5 +1,7 @@
 #pragma once
 
+const int error = 1;
+
 template <class Type> struct NodeType
 {
 	Type data;
@@ -18,8 +20,8 @@ public:
 	
 	LinkList();
 	~LinkList();
-	bool empty();
-	int size();
+	inline bool empty();
+	inline int size();
 	void insert_after(iterator existNode, Type insertData);
 	void push_back(Type data);
 	void push_front(Type data);
@@ -60,22 +62,30 @@ public:
 
 		iterator &operator ++()
 		{
+			if (*this == end())
+			{
+				throw error;
+			}
 			iter = iter->next;
 			return *this;
 		}
 
 		iterator &operator --()
 		{
-			iter = iter->prior;
-			if (iter == head)
+			if (*this == begin())
 			{
-				iter = nullptr;
+				throw error;
 			}
+			iter = iter->prior;
 			return *this;
 		}
 
 		iterator operator ++(int)
 		{
+			if (*this == end())
+			{
+				throw error;
+			}
 			iterator copy = *this;
 			iter = iter->next;
 			return copy;
@@ -83,12 +93,12 @@ public:
 
 		iterator operator --(int)
 		{
+			if (*this == begin())
+			{
+				throw error;
+			}
 			iterator copy = *this;
 			iter = iter->prior;
-			if (iter == head)
-			{
-				iter = nullptr;
-			}
 			return copy;
 		}
 
@@ -129,16 +139,18 @@ LinkList<Type>::LinkList()
 {
 	listSize = 0;
 	head = new NodeType<Type>;
-	head->next = nullptr;
+	tail = new NodeType<Type>;
+	head->next = tail;
 	head->prior = nullptr;
-	tail = head;
+	tail->prior = head;
+	tail->next = nullptr;
 }
 
 
 template<class Type>
 LinkList<Type>::~LinkList()
 {
-	NodeType<Type> *pNode = head;
+	NodeType<Type> *pNode = head->next;
 	NodeType<Type> *deleteNode;
 	while (pNode != nullptr)
 	{
@@ -146,6 +158,7 @@ LinkList<Type>::~LinkList()
 		pNode = pNode->next;
 		delete deleteNode;
 	}
+	delete head;
 }
 
 
@@ -168,28 +181,30 @@ Type & LinkList<Type>::at(size_t pos)
 {
 	NodeType<Type> *pNode = head->next;
 
-	while (pos != 0 && pNode != nullptr)
+	if (pos > size() - 1)
+		throw error;
+	while (pos != 0)
 	{
 		pNode = pNode->next;
 		--pos;
 	}
-
 	return pNode->data;
 }
 
 template<class Type>
 void  LinkList<Type>::insert_after(iterator exsitNode, Type date)
 {
-	NodeType<Type> *newNode = new NodeType;
+	if (exsitNode == end())
+	{
+		throw error;
+		return;
+	}
+	NodeType<Type> *newNode = new NodeType<Type>;
 	newNode->data = data;
 	newNode->next = exsitNode.iter->next;
 	exsitNode.iter->next = newNode;
 	newNode->prior = exsitNode.iter;
 	newNode->next->prior = newNode;
-	if (exsitNode.iter == tail)
-	{
-		tail = newNode;
-	}
 	++listSize;
 }
 
@@ -199,10 +214,10 @@ void LinkList<Type>::push_back(Type data)
 {
 	NodeType<Type> *newNode = new NodeType<Type>;
 	newNode->data = data;
-	newNode->next = nullptr;
-	newNode->prior = tail;
-	tail->next = newNode;
-	tail = newNode;
+	newNode->next = tail;
+	newNode->prior = tail->prior;
+	tail->prior->next = newNode;
+	tail->prior = newNode;
 	++listSize;
 }
 
@@ -221,9 +236,9 @@ void LinkList<Type>::push_front(Type data)
 template<class Type>
 void LinkList<Type>::pop_back()
 {
-	NodeType<Type> *deleteNode = tail;
-	tail = tail->prior;
-	tail->next = nullptr;
+	NodeType<Type> *deleteNode = tail->prior;
+	tail->prior = deleteNode->prior;
+	deleteNode->prior->next = tail;
 	delete deleteNode;
 	--listSize;
 }
