@@ -22,11 +22,12 @@ public:
 	~LinkList();
 	inline bool empty();
 	inline int size();
-	void insert_after(iterator existNode, Type insertData);
-	void push_back(Type data);
-	void push_front(Type data);
+	void insert(iterator Where, const Type& Val);
+	void push_back(const Type &data);
+	void push_front(const Type &data);
 	void pop_back();
 	void pop_front();
+	void erase(iterator _Where);
 	iterator begin()
 	{
 		return iterator(head->next);
@@ -42,9 +43,9 @@ public:
 	class iterator
 	{
 	private:
+		friend class LinkList;
 		NodeType<Type> *iter;
 		
-		friend class LinkList;
 
 	public:
 		iterator()
@@ -62,30 +63,18 @@ public:
 
 		iterator &operator ++()
 		{
-			if (*this == end())
-			{
-				throw error;
-			}
 			iter = iter->next;
 			return *this;
 		}
 
 		iterator &operator --()
 		{
-			if (*this == begin())
-			{
-				throw error;
-			}
 			iter = iter->prior;
 			return *this;
 		}
 
 		iterator operator ++(int)
 		{
-			if (*this == end())
-			{
-				throw error;
-			}
 			iterator copy = *this;
 			iter = iter->next;
 			return copy;
@@ -93,10 +82,6 @@ public:
 
 		iterator operator --(int)
 		{
-			if (*this == begin())
-			{
-				throw error;
-			}
 			iterator copy = *this;
 			iter = iter->prior;
 			return copy;
@@ -192,25 +177,20 @@ Type & LinkList<Type>::at(size_t pos)
 }
 
 template<class Type>
-void  LinkList<Type>::insert_after(iterator exsitNode, Type date)
+void  LinkList<Type>::insert(iterator Where, const Type &Val)
 {
-	if (exsitNode == end())
-	{
-		throw error;
-		return;
-	}
 	NodeType<Type> *newNode = new NodeType<Type>;
-	newNode->data = data;
-	newNode->next = exsitNode.iter->next;
-	exsitNode.iter->next = newNode;
-	newNode->prior = exsitNode.iter;
-	newNode->next->prior = newNode;
+	newNode->data = Val;
+	newNode->next = Where.iter;
+	newNode->prior = Where.iter->prior;
+	newNode->prior->next = newNode;
+	Where.iter->prior = newNode;
 	++listSize;
 }
 
 
 template<class Type>
-void LinkList<Type>::push_back(Type data)
+void LinkList<Type>::push_back(const Type &data)
 {
 	NodeType<Type> *newNode = new NodeType<Type>;
 	newNode->data = data;
@@ -222,7 +202,7 @@ void LinkList<Type>::push_back(Type data)
 }
 
 template<class Type>
-void LinkList<Type>::push_front(Type data)
+void LinkList<Type>::push_front(const Type &data)
 {
 	NodeType<Type> *newNode = new NodeType<Type>;
 	newNode->data = data;
@@ -251,5 +231,13 @@ void LinkList<Type>::pop_front()
 	deleteNode->next->prior = head;
 	delete deleteNode;
 	--listSize;
+}
+
+template<class Type>
+void LinkList<Type>::erase(iterator _Where)
+{
+	_Where.iter->prior->next = _Where.iter->next;
+	_Where.iter->next->prior = _Where.iter->prior;
+	delete _Where.iter;
 }
 
