@@ -23,9 +23,10 @@
     <ClInclude Include="Set.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="LinkList.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Set.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{B72369CE-9481-45A9-BB7D-ED9254D9E7AE}</ProjectGuid>
@@ -83,6 +84,8 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

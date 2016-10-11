@@ -5,9 +5,11 @@ template<class T> class Set
 {
 private:
 	LinkList<T> elemSet;
+	bool(*dataDef)(T data);
 
 public:
 	Set();
 	~Set();
-	void insert(T data, _Fn1 _Func);
+	Set(const T *inputStr, size_t elemSize, bool(*_DefData)(T data));
+	void insert(T data);
 };
